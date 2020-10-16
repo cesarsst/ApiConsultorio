@@ -35,13 +35,12 @@ public class IndividuoService {
     @GetMapping(path = "individuo/{id}")
     public ResponseEntity<?> getIndividuoById(@PathVariable("id") int id){
         verifyIfIndividuoExist(id);
-        Individuo individuo = individuoDAO.findById(id).get();
+        Individuo individuo = individuoDAO.findById(id);
         return new ResponseEntity<>(individuo, HttpStatus.OK);
     }
 
-    @GetMapping(path="individuo/findByName/{nome}")
-    public ResponseEntity<?> findIndividuoByName(@PathVariable String nome, @AuthenticationPrincipal UserDetails userDetails){
-        System.out.println(userDetails);
+    @GetMapping(path="/aux/individuo/findByName/{nome}")
+    public ResponseEntity<?> findIndividuoByName(@PathVariable String nome){
         List<Individuo> individuoList = individuoDAO.findByNomeIgnoreCaseContaining(nome);
         if(individuoList.size() == 0){
             throw new ResourceNotFoundException("Não foi possível encontrar algum indíviduo com este nome!");
@@ -72,7 +71,8 @@ public class IndividuoService {
     }
 
     private void verifyIfIndividuoExist(int id){
-        if(!individuoDAO.findById(id).isPresent()){
+        Individuo individuo = individuoDAO.findById(id);
+        if(individuo == null){
             throw new ResourceNotFoundException("Individuo não encontrado com ID:"+id);
         }
     }

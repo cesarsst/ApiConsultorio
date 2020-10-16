@@ -102,7 +102,8 @@ public class PacienteService {
     }
 
     public void verificUpdate(int id){
-        if(!individuoRepository.findById(id).isPresent()){
+        Individuo individuo = individuoRepository.findById(id);
+        if(individuo == null){
             throw new ResourceNotFoundException("Individuo não encontrado com ID:"+id);
         }
     }
