@@ -12,7 +12,7 @@ public class PasswordEncoder {
 
     public static void main(String[] args){
 
-        String password = "cesar878795";
+        String password = "878795";
         String passwordEncode = passwordEncoder.encode(password);
         boolean isPasswordMatch = passwordEncoder.matches(password, passwordEncode);
         System.out.println("Password : " + password + "   isPasswordMatch    : " + isPasswordMatch);

@@ -68,7 +68,7 @@ public class GerenciadorService {
         verificIfUserExist(newAuxiliar);
         Individuo individuo = individuoRepository.findByNome(newAuxiliar.getNome());
 
-        Usuario usuario = usuarioRepository.findById(individuo.getId());
+        Usuario usuario = usuarioRepository.findByUsuarioId(individuo.getId());
         usuario.setCateg(newAuxiliar.getCateg());
         usuarioRepository.save(usuario);
 

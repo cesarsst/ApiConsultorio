@@ -40,7 +40,7 @@ public class CustomLoginDetailService implements UserDetailsService {
         List<GrantedAuthority> authorityListProf = AuthorityUtils.createAuthorityList("ROLE_profissional");
 
         int usuario_id = login.getUsuarioId();
-        Usuario usuario = usuarioRepository.findById(usuario_id);
+        Usuario usuario = usuarioRepository.findByUsuarioId(usuario_id);
         String categ = usuario.getCateg();
         List<GrantedAuthority> select = null;
         if(categ.equals("administrador")){

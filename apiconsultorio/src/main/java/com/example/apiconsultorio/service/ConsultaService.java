@@ -160,10 +160,11 @@ public class ConsultaService {
     }
 
     public void verficiUsuarioId(int id){
-        Usuario userFind = usuarioRepository.findById(id);
+        Usuario userFind = usuarioRepository.findByUsuarioId(id);
+        System.out.println(userFind.getCateg());
         if(userFind == null){
             throw new ResourceNotFoundException("Médico não encontrado com ID:"+ id);
-        } else if (userFind.getCateg() != "profissional"){
+        } else if (!userFind.getCateg().equals("profissional")){
             throw new ResourceNotFoundException("O id fornecido não se refere a um médico!");
         }
     }
