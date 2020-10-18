@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PacienteRepository extends CrudRepository<Paciente, Integer> {
     List<Paciente> findByCpf(String cpf);
+    Paciente findByPacienteId(int id);
 }

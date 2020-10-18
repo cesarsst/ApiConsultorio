@@ -4,11 +4,20 @@ import org.springframework.context.annotation.ComponentScan;
 
 public class NewAuxiliar {
 
+    private int id;
     private String nome;
     private String categ;
     private String username;
     private String password;
 
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;

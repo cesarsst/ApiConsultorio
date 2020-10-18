@@ -92,6 +92,8 @@ public class GerenciadorService {
             newAuxiliar.setCateg(findUser.get(i).getCateg());
 
             Individuo individuo = individuoRepository.findById(findUser.get(i).getUsuarioId());
+
+            newAuxiliar.setId(individuo.getId());
             newAuxiliar.setNome(individuo.getNome());
 
             Login  login = loginRepository.findByUsuarioId(findUser.get(i).getUsuarioId());
@@ -102,6 +104,38 @@ public class GerenciadorService {
 
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
+
+    @GetMapping("/aux/getAllProfissional")
+    public ResponseEntity<?> getAllProfissional(){
+        ArrayList<NewAuxiliar> userList = new ArrayList<>();
+        List<Usuario> findUser = usuarioRepository.findAll();
+
+        for(int i=0; i<findUser.size(); i++){
+            if(findUser.get(i).getCateg().equals("profissional")){
+
+                NewAuxiliar newAuxiliar = new NewAuxiliar();
+                newAuxiliar.setCateg(findUser.get(i).getCateg());
+
+                Individuo individuo = individuoRepository.findById(findUser.get(i).getUsuarioId());
+                newAuxiliar.setId(individuo.getId());
+                newAuxiliar.setNome(individuo.getNome());
+
+                Login  login = loginRepository.findByUsuarioId(findUser.get(i).getUsuarioId());
+                newAuxiliar.setUsername(login.getUsername());
+
+                userList.add(newAuxiliar);
+            }
+
+        }
+
+        if(userList.size() == 0){
+            throw new ResourceNotFoundException("Não existe profissionais cadastrados no sistema!");
+        }
+
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+
 
     public void verificAllAtributesToRegister(NewAuxiliar newAuxiliar){
 

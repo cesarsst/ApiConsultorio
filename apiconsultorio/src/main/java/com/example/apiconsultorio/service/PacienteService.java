@@ -1,7 +1,11 @@
 package com.example.apiconsultorio.service;
 
+import com.example.apiconsultorio.dao.ContatoRepository;
+import com.example.apiconsultorio.dao.EnderecoRepository;
 import com.example.apiconsultorio.dao.IndividuoRepository;
 import com.example.apiconsultorio.dao.PacienteRepository;
+import com.example.apiconsultorio.model.Contato;
+import com.example.apiconsultorio.model.Endereco;
 import com.example.apiconsultorio.model.Individuo;
 import com.example.apiconsultorio.model.Paciente;
 import com.example.apiconsultorio.util.CustomModels.NewPaciente;
@@ -14,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -24,13 +29,16 @@ public class PacienteService {
     private final PacienteRepository pacienteRepository;
     private final EnderecoService enderecoService;
     private final ContatoService contatoService;
-
+    private final ContatoRepository contatoRepository;
+    private final EnderecoRepository enderecoRepository;
     @Autowired
-    public PacienteService(IndividuoRepository individuoRepository, PacienteRepository pacienteRepository, EnderecoService enderecoService, ContatoService contatoService) {
+    public PacienteService(IndividuoRepository individuoRepository, PacienteRepository pacienteRepository, EnderecoService enderecoService, ContatoService contatoService, ContatoRepository contatoRepository, EnderecoRepository enderecoRepository) {
         this.individuoRepository = individuoRepository;
         this.pacienteRepository = pacienteRepository;
         this.enderecoService = enderecoService;
         this.contatoService = contatoService;
+        this.contatoRepository = contatoRepository;
+        this.enderecoRepository = enderecoRepository;
     }
 
     @PostMapping("/aux/newPaciente")
@@ -58,9 +66,86 @@ public class PacienteService {
         List<Individuo> individuoList = individuoRepository.findByNomeIgnoreCaseContaining(nome);
         if(individuoList.size() == 0 || (nome == "" || nome == null)){
             throw new ResourceNotFoundException("Não foi possível encontrar algum indíviduo com este nome!");
-        }else{
-            return new ResponseEntity<>(individuoList, HttpStatus.OK);
         }
+
+        List<NewPaciente> listAllPacientes = new ArrayList<NewPaciente>();
+
+        for(int n=0; n<individuoList.size(); n++){
+            Individuo  individuo = individuoList.get(n);
+
+            Paciente paciente = pacienteRepository.findByPacienteId(individuo.getId());
+            if(paciente != null){
+                NewPaciente newPaciente = new NewPaciente();
+
+                newPaciente.setId(individuo.getId());
+                newPaciente.setNome(individuo.getNome());
+
+                newPaciente.setCpf(paciente.getCpf());
+
+                Contato contato = contatoRepository.findByPacienteId(individuo.getId());
+                newPaciente.setEmail(contato.getEmail());
+                newPaciente.setTelefone(contato.getTelefone());
+                newPaciente.setWhatsapp(contato.getWhatsapp());
+
+                Endereco endereco = enderecoRepository.findByPacienteId(individuo.getId());
+                newPaciente.setCep(endereco.getCep());
+                newPaciente.setNumero(Integer.toString(endereco.getNumero()));
+                newPaciente.setBairro(endereco.getBairro());
+                newPaciente.setCidade(endereco.getCidade());
+                newPaciente.setEstado(endereco.getEstado());
+                newPaciente.setComplemento(endereco.getComplemento());
+
+                listAllPacientes.add(newPaciente);
+            }
+        }
+
+        if(listAllPacientes.size() == 0){
+            throw new ResourceNotFoundException("Não foi possível encontrar um paciente com este nome!");
+        }
+
+        return new ResponseEntity<>(listAllPacientes, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/aux/findAllPaciente")
+    public ResponseEntity<?> findAllPaciente(){
+        List<Individuo> individuoList = individuoRepository.findAll();
+        if(individuoList.size() == 0){
+            throw new ResourceNotFoundException("Não existe individuos cadastrados!");
+        }
+
+        List<NewPaciente> listAllPacientes = new ArrayList<NewPaciente>();
+
+        for(int i=0; i<individuoList.size(); i++){
+
+            int  individuoId = individuoList.get(i).getId();
+            NewPaciente newPaciente = new NewPaciente();
+            Paciente paciente = pacienteRepository.findByPacienteId(individuoId);
+            if(paciente != null){
+                newPaciente.setId(individuoId);
+                newPaciente.setNome(individuoList.get(i).getNome());
+                newPaciente.setCpf(paciente.getCpf());
+
+                Contato contato = contatoRepository.findByPacienteId(individuoId);
+                newPaciente.setEmail(contato.getEmail());
+                newPaciente.setTelefone(contato.getTelefone());
+                newPaciente.setWhatsapp(contato.getWhatsapp());
+
+                Endereco endereco = enderecoRepository.findByPacienteId(individuoId);
+                newPaciente.setCep(endereco.getCep());
+                newPaciente.setNumero(Integer.toString(endereco.getNumero()));
+                newPaciente.setBairro(endereco.getBairro());
+                newPaciente.setCidade(endereco.getCidade());
+                newPaciente.setEstado(endereco.getEstado());
+                newPaciente.setComplemento(endereco.getComplemento());
+
+                listAllPacientes.add(newPaciente);
+            }
+
+        }
+
+        return new ResponseEntity<>(listAllPacientes, HttpStatus.OK);
+
     }
 
     @PutMapping("/aux/updatePaciente")
