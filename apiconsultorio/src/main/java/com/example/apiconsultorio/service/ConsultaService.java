@@ -1,11 +1,9 @@
 package com.example.apiconsultorio.service;
 
 import com.example.apiconsultorio.dao.*;
-import com.example.apiconsultorio.model.Consulta;
+import com.example.apiconsultorio.model.*;
 
-import com.example.apiconsultorio.model.Individuo;
 import com.example.apiconsultorio.model.NewConsulta;
-import com.example.apiconsultorio.model.Usuario;
 import com.example.apiconsultorio.util.error.ResourceNotFoundException;
 import com.example.apiconsultorio.util.error.ValidateAtributesException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +31,10 @@ public class ConsultaService {
     private final ConsultaRepository consultaRepository;
     private final IndividuoRepository individuoRepository;
     private final PagamentoService pagamentoService;
+    private final LoginRepository loginRepository;
 
     @Autowired
-    public ConsultaService(UsuarioRepository usuarioRepository, RelatorioRepository relatorioRepository, PacienteRepository pacienteRepository, PagamentosRepository pagamentosRepository, ConsultaRepository consultaRepository, IndividuoRepository individuoRepository, PagamentoService pagamentoService) {
+    public ConsultaService(UsuarioRepository usuarioRepository, RelatorioRepository relatorioRepository, PacienteRepository pacienteRepository, PagamentosRepository pagamentosRepository, ConsultaRepository consultaRepository, IndividuoRepository individuoRepository, PagamentoService pagamentoService, LoginRepository loginRepository) {
         this.usuarioRepository = usuarioRepository;
         this.relatorioRepository = relatorioRepository;
         this.pacienteRepository = pacienteRepository;
@@ -43,6 +42,7 @@ public class ConsultaService {
         this.consultaRepository = consultaRepository;
         this.individuoRepository = individuoRepository;
         this.pagamentoService = pagamentoService;
+        this.loginRepository = loginRepository;
     }
 
     @PostMapping("/aux/newConsulta")
@@ -85,9 +85,14 @@ public class ConsultaService {
     @GetMapping("/prof/findConsultaByUser")
     public ResponseEntity<?> findConsultaByUser(@AuthenticationPrincipal UserDetails userDetails){
         String userName = userDetails.getUsername();
-        Individuo individuo = individuoRepository.findByNome(userName);
+        Login login = loginRepository.findByUsername(userName);
+        Individuo individuo = individuoRepository.findById(login.getUsuarioId());
         int idUser = individuo.getId();
         List<Consulta> consultaList = consultaRepository.findByMedicoId(idUser);
+        if(consultaList.size() == 0){
+            throw new ResourceNotFoundException("Não existe consultas pendentes!");
+        }
+
         return new ResponseEntity<>(consultaList, HttpStatus.OK);
     }
 
