@@ -122,6 +122,8 @@ public class ConsultaService {
     public ResponseEntity<?> update(@Validated @RequestBody NewConsulta newConsulta){
         verificUpdate(newConsulta.getId());
         verificAllAtributesToRegister(newConsulta);
+        verificPacienteId(newConsulta.getPacienteId());
+        verficiUsuarioId(newConsulta.getMedicoId());
 
         Consulta consulta = consultaRepository.findById(newConsulta.getId());
 
@@ -144,6 +146,8 @@ public class ConsultaService {
     @DeleteMapping("/admin/deleteConsultaById/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id){
         verificConsultaId(id);
+        Pagamento pagamento = pagamentosRepository.findByConsultaId(id);
+        pagamentosRepository.deleteById(pagamento.getId());
         consultaRepository.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

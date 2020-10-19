@@ -1,5 +1,7 @@
 package com.example.apiconsultorio.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.Entity;
 import java.time.LocalDateTime;
 
@@ -9,6 +11,8 @@ public class Consulta extends AbstractEntity{
     private boolean concluida;
     private int medicoId;
     private int pacienteId;
+
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime data;
 
     public boolean isConcluida() {
