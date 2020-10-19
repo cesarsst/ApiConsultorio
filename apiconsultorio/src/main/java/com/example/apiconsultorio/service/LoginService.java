@@ -1,8 +1,10 @@
 package com.example.apiconsultorio.service;
 
 import com.example.apiconsultorio.dao.LoginRepository;
+import com.example.apiconsultorio.dao.UsuarioRepository;
 import com.example.apiconsultorio.model.Login;
 import com.example.apiconsultorio.model.NewLogin;
+import com.example.apiconsultorio.model.Usuario;
 import com.example.apiconsultorio.util.error.ResourceNotFoundException;
 import com.example.apiconsultorio.util.error.ValidateAtributesException;
 import com.example.apiconsultorio.util.passwordEncoder.PasswordEncoder;
@@ -16,11 +18,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("v1/")
 public class LoginService {
     private final LoginRepository loginRepository;
+    private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder = new PasswordEncoder();
 
     @Autowired
-    public LoginService(LoginRepository loginRepository) {
+    public LoginService(LoginRepository loginRepository, UsuarioRepository usuarioRepository) {
         this.loginRepository = loginRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping("/login")
@@ -33,14 +37,14 @@ public class LoginService {
             throw new ResourceNotFoundException("Usuário não encontrado!");
         }
 
-        boolean validate = new PasswordEncoder().comparePassword(login.getPassword(), findLogin.getPassword());
-        if(!validate){
-            throw new ValidateAtributesException("Senha incorreta!");
-        }
-
         NewLogin newLogin = new NewLogin();
+        newLogin.setUsuarioId(findLogin.getUsuarioId());
+        newLogin.setUsername(findLogin.getUsername());
 
-        return new ResponseEntity<>(findLogin, HttpStatus.OK);
+        Usuario usuario = usuarioRepository.findByUsuarioId(findLogin.getUsuarioId());
+        newLogin.setRole(usuario.getCateg());
+
+        return new ResponseEntity<>(newLogin, HttpStatus.OK);
     }
 
 

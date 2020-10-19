@@ -68,7 +68,17 @@ public class ConsultaService {
             throw new ValidateAtributesException("Não foi possivel registrar a consulta. Verifique os campos digitados!");
         }
 
-        return new ResponseEntity<>(newConsulta, HttpStatus.OK);
+        return new ResponseEntity<>(consultaSave, HttpStatus.OK);
+    }
+
+    @GetMapping("/aux/findAllConsultas")
+    public ResponseEntity<?> findAllConsultas(){
+        List<Consulta> consultaList = consultaRepository.findAll();
+        if(consultaList.size() == 0){
+            throw new ResourceNotFoundException("Não existe consultas marcadas!");
+        }else{
+            return new ResponseEntity<>(consultaList, HttpStatus.OK);
+        }
     }
 
     @GetMapping("/aux/findConsultaByPacienteId/{id}")
@@ -77,6 +87,17 @@ public class ConsultaService {
         List<Consulta> consultaList = consultaRepository.findByPacienteId(id);
         if(consultaList.size() == 0){
             throw new ResourceNotFoundException("Não existe consultas marcadas para este paciente!");
+        }else{
+            return new ResponseEntity<>(consultaList, HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/aux/findConsultaByProfissional/{id}")
+    public ResponseEntity<?> findConsultaByProfissional(@PathVariable int id){
+        verificProfissionalId(id);
+        List<Consulta> consultaList = consultaRepository.findByMedicoId(id);
+        if(consultaList.size() == 0){
+            throw new ResourceNotFoundException("Não existe consultas marcadas para este profissional!");
         }else{
             return new ResponseEntity<>(consultaList, HttpStatus.OK);
         }
@@ -162,6 +183,14 @@ public class ConsultaService {
         if(!pacienteRepository.findById(id).isPresent()){
             throw new ResourceNotFoundException("Paciente não encontrado com ID:"+ id);
         }
+    }
+
+    public void verificProfissionalId(int id){
+        Usuario usuario = usuarioRepository.findByUsuarioId(id);
+        if(usuario == null || !usuario.getCateg().equals("profissional")){
+            throw new ResourceNotFoundException("Profissional não encontrado com ID:"+ id);
+        }
+
     }
 
     public void verficiUsuarioId(int id){
