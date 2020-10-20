@@ -19,6 +19,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -77,9 +78,38 @@ public class ConsultaService {
         List<Consulta> consultaList = consultaRepository.findAll();
         if(consultaList.size() == 0){
             throw new ResourceNotFoundException("Não existe consultas marcadas!");
-        }else{
-            return new ResponseEntity<>(consultaList, HttpStatus.OK);
         }
+
+        List<UpdateConsulta> returnList = new ArrayList<>();
+        for(int i=0; i<consultaList.size(); i++){
+            Consulta consulta = consultaList.get(i);
+            UpdateConsulta updateConsulta = new UpdateConsulta();
+
+            updateConsulta.setId(consulta.getId());
+            updateConsulta.setConcluida(consulta.isConcluida());
+            updateConsulta.setMedicoId(consulta.getMedicoId());
+            updateConsulta.setPacienteId(consulta.getPacienteId());
+
+            LocalDateTime currentDateTime = consulta.getData();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String data = currentDateTime.format(formatter);
+            updateConsulta.setData(data);
+
+            Pagamento pagamento = pagamentosRepository.findByConsultaId(consulta.getId());
+            updateConsulta.setQuitado(pagamento.isQuitado());
+            updateConsulta.setResumo(pagamento.getResumo());
+            updateConsulta.setValor(pagamento.getValor());
+
+            Individuo individuo = individuoRepository.findById(consulta.getPacienteId());
+            updateConsulta.setPacienteName(individuo.getNome());
+
+            returnList.add(updateConsulta);
+
+        }
+
+
+        return new ResponseEntity<>(returnList, HttpStatus.OK);
+
     }
 
     @GetMapping("/aux/findConsultaByPacienteId/{id}")
@@ -88,9 +118,37 @@ public class ConsultaService {
         List<Consulta> consultaList = consultaRepository.findByPacienteId(id);
         if(consultaList.size() == 0){
             throw new ResourceNotFoundException("Não existe consultas marcadas para este paciente!");
-        }else{
-            return new ResponseEntity<>(consultaList, HttpStatus.OK);
         }
+
+        List<UpdateConsulta> returnList = new ArrayList<>();
+        for(int i=0; i<consultaList.size(); i++){
+            Consulta consulta = consultaList.get(i);
+            UpdateConsulta updateConsulta = new UpdateConsulta();
+
+            updateConsulta.setId(consulta.getId());
+            updateConsulta.setConcluida(consulta.isConcluida());
+            updateConsulta.setMedicoId(consulta.getMedicoId());
+            updateConsulta.setPacienteId(consulta.getPacienteId());
+
+            LocalDateTime currentDateTime = consulta.getData();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String data = currentDateTime.format(formatter);
+            updateConsulta.setData(data);
+
+            Pagamento pagamento = pagamentosRepository.findByConsultaId(consulta.getId());
+            updateConsulta.setQuitado(pagamento.isQuitado());
+            updateConsulta.setResumo(pagamento.getResumo());
+            updateConsulta.setValor(pagamento.getValor());
+
+            Individuo individuo = individuoRepository.findById(consulta.getPacienteId());
+            updateConsulta.setPacienteName(individuo.getNome());
+
+            returnList.add(updateConsulta);
+
+        }
+
+
+        return new ResponseEntity<>(returnList, HttpStatus.OK);
     }
 
     @GetMapping("/aux/findConsultaByProfissional/{id}")
@@ -99,9 +157,37 @@ public class ConsultaService {
         List<Consulta> consultaList = consultaRepository.findByMedicoId(id);
         if(consultaList.size() == 0){
             throw new ResourceNotFoundException("Não existe consultas marcadas para este profissional!");
-        }else{
-            return new ResponseEntity<>(consultaList, HttpStatus.OK);
         }
+
+        List<UpdateConsulta> returnList = new ArrayList<>();
+        for(int i=0; i<consultaList.size(); i++){
+            Consulta consulta = consultaList.get(i);
+            UpdateConsulta updateConsulta = new UpdateConsulta();
+
+            updateConsulta.setId(consulta.getId());
+            updateConsulta.setConcluida(consulta.isConcluida());
+            updateConsulta.setMedicoId(consulta.getMedicoId());
+            updateConsulta.setPacienteId(consulta.getPacienteId());
+
+            LocalDateTime currentDateTime = consulta.getData();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String data = currentDateTime.format(formatter);
+            updateConsulta.setData(data);
+
+            Pagamento pagamento = pagamentosRepository.findByConsultaId(consulta.getId());
+            updateConsulta.setQuitado(pagamento.isQuitado());
+            updateConsulta.setResumo(pagamento.getResumo());
+            updateConsulta.setValor(pagamento.getValor());
+
+            Individuo individuo = individuoRepository.findById(consulta.getPacienteId());
+            updateConsulta.setPacienteName(individuo.getNome());
+
+            returnList.add(updateConsulta);
+
+        }
+
+        return new ResponseEntity<>(returnList, HttpStatus.OK);
+
     }
 
     @GetMapping("/prof/findConsultaByUser")
@@ -115,7 +201,34 @@ public class ConsultaService {
             throw new ResourceNotFoundException("Não existe consultas pendentes!");
         }
 
-        return new ResponseEntity<>(consultaList, HttpStatus.OK);
+        List<UpdateConsulta> returnList = new ArrayList<>();
+        for(int i=0; i<consultaList.size(); i++){
+            Consulta consulta = consultaList.get(i);
+            UpdateConsulta updateConsulta = new UpdateConsulta();
+
+            updateConsulta.setId(consulta.getId());
+            updateConsulta.setConcluida(consulta.isConcluida());
+            updateConsulta.setMedicoId(consulta.getMedicoId());
+            updateConsulta.setPacienteId(consulta.getPacienteId());
+
+            LocalDateTime currentDateTime = consulta.getData();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String data = currentDateTime.format(formatter);
+            updateConsulta.setData(data);
+
+            Pagamento pagamento = pagamentosRepository.findByConsultaId(consulta.getId());
+            updateConsulta.setQuitado(pagamento.isQuitado());
+            updateConsulta.setResumo(pagamento.getResumo());
+            updateConsulta.setValor(pagamento.getValor());
+
+            Individuo individuoPaciente = individuoRepository.findById(consulta.getPacienteId());
+            updateConsulta.setPacienteName(individuoPaciente.getNome());
+
+            returnList.add(updateConsulta);
+
+        }
+
+        return new ResponseEntity<>(returnList, HttpStatus.OK);
     }
 
     @PutMapping("/aux/updateConsulta")

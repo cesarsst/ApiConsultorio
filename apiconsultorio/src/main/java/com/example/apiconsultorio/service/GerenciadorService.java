@@ -45,6 +45,7 @@ public class GerenciadorService {
         Individuo individuo = new Individuo();
         individuo.setNome(newAuxiliar.getNome());
         individuo = individuoRepository.save(individuo);
+        newAuxiliar.setId(individuo.getId());
 
         Usuario usuario = new Usuario();
         usuario.setUsuarioId(individuo.getId());
