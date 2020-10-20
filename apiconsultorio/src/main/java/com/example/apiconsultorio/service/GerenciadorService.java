@@ -41,6 +41,7 @@ public class GerenciadorService {
     @Transactional
     public ResponseEntity<?> newUser(@Validated @RequestBody NewAuxiliar newAuxiliar){
         verificAllAtributesToRegister(newAuxiliar);
+        verificUsername(newAuxiliar.getUsername());
 
         Individuo individuo = new Individuo();
         individuo.setNome(newAuxiliar.getNome());
@@ -158,6 +159,13 @@ public class GerenciadorService {
         Individuo individuo = individuoRepository.findByNome(newAuxiliar.getNome());
         if(individuo == null){
             throw new ResourceNotFoundException("Individuo não encontrado com o nome :"+ newAuxiliar.getNome());
+        }
+    }
+
+    public void verificUsername(String username){
+        Login login = loginRepository.findByUsername(username);
+        if(login != null){
+            throw new ValidateAtributesException("Username já utilizado!");
         }
     }
 
