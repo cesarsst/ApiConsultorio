@@ -4,6 +4,7 @@ import com.example.apiconsultorio.dao.*;
 import com.example.apiconsultorio.model.*;
 
 import com.example.apiconsultorio.model.NewConsulta;
+import com.example.apiconsultorio.model.UpdateConsulta;
 import com.example.apiconsultorio.util.error.ResourceNotFoundException;
 import com.example.apiconsultorio.util.error.ValidateAtributesException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,28 +120,32 @@ public class ConsultaService {
 
     @PutMapping("/aux/updateConsulta")
     @Transactional
-    public ResponseEntity<?> update(@Validated @RequestBody NewConsulta newConsulta){
-        verificUpdate(newConsulta.getId());
-        verificAllAtributesToRegister(newConsulta);
-        verificPacienteId(newConsulta.getPacienteId());
-        verficiUsuarioId(newConsulta.getMedicoId());
+    public ResponseEntity<?> update(@Validated @RequestBody UpdateConsulta updateConsulta){
+        verificUpdate(updateConsulta);
+        verificPacienteId(updateConsulta.getPacienteId());
+        verficiUsuarioId(updateConsulta.getMedicoId());
 
-        Consulta consulta = consultaRepository.findById(newConsulta.getId());
+        Consulta consulta = consultaRepository.findById(updateConsulta.getId());
 
-        if(consulta.isConcluida()){
-            throw new ValidateAtributesException("Você não pode alterar uma consulta já finalizada!");
-        }
-
-        consulta.setMedicoId(newConsulta.getMedicoId());
-        consulta.setPacienteId(newConsulta.getPacienteId());
+        consulta.setConcluida(updateConsulta.isConcluida());
+        consulta.setMedicoId(updateConsulta.getMedicoId());
+        consulta.setPacienteId(updateConsulta.getPacienteId());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(newConsulta.getData(), formatter);
+        LocalDateTime dateTime = LocalDateTime.parse(updateConsulta.getData(), formatter);
         consulta.setData(dateTime);
-        consulta.setConcluida(newConsulta.isConcluida());
+        consultaRepository.save(consulta);
 
+        Pagamento  pagamento = pagamentosRepository.findByConsultaId(updateConsulta.getId());
+        pagamento.setQuitado(updateConsulta.isQuitado());
+        pagamento.setResumo(updateConsulta.getResumo());
+        pagamento.setValor(updateConsulta.getValor());
+        pagamentosRepository.save(pagamento);
 
-        return new ResponseEntity<>(consulta, HttpStatus.OK);
+        Individuo  individuo = individuoRepository.findById(updateConsulta.getPacienteId());
+        updateConsulta.setPacienteName(individuo.getNome());
+
+        return new ResponseEntity<>(updateConsulta, HttpStatus.OK);
     }
 
     @DeleteMapping("/admin/deleteConsultaById/{id}")
@@ -153,10 +158,10 @@ public class ConsultaService {
     }
 
     public void verificAllAtributesToRegister(NewConsulta newConsulta){
-        if(newConsulta.getMedicoId() == 0){
+        if(newConsulta.getMedicoId() == 0 || Integer.toString(newConsulta.getMedicoId()) == null){
             throw new ValidateAtributesException("Atributo 'medicoId' não pode ser nulo!");
         }
-        if(newConsulta.getPacienteId() == 0){
+        if(newConsulta.getPacienteId() == 0 || Integer.toString(newConsulta.getPacienteId()) == null){
             throw new ValidateAtributesException("Atributo 'pacienteId' não pode ser nulo!");
         }
         if(newConsulta.getData() == null){
@@ -207,11 +212,32 @@ public class ConsultaService {
         }
     }
 
-    public void verificUpdate(int id){
-        Consulta consulta = consultaRepository.findById(id);
+    public void verificUpdate(UpdateConsulta updateConsulta){
+        Consulta consulta = consultaRepository.findById(updateConsulta.getId());
         if(consulta == null){
-            throw new ResourceNotFoundException("Consulta não encontrada com ID:"+id);
+            throw new ResourceNotFoundException("Consulta não encontrada com ID:"+updateConsulta.getId());
         }
+
+        if(updateConsulta.getMedicoId() == 0 || Integer.toString(updateConsulta.getMedicoId()) == null){
+            throw new ValidateAtributesException("Atributo 'medicoId' não pode ser nulo!");
+        }
+        if(updateConsulta.getPacienteId() == 0 || Integer.toString(updateConsulta.getPacienteId()) == null){
+            throw new ValidateAtributesException("Atributo 'pacienteId' não pode ser nulo!");
+        }
+        if(updateConsulta.getData() == null){
+            throw new ValidateAtributesException("Atributo 'data' não pode ser nulo!");
+        }
+        if(Float.toString(updateConsulta.getValor()) == null){
+            throw new ValidateAtributesException("Atributo 'valor' não pode ser nulo!");
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try{
+            LocalDateTime dateTime = LocalDateTime.parse(updateConsulta.getData(), formatter);
+        } catch (DateTimeParseException e){
+            throw new ValidateAtributesException("Atributo 'data' inválido!");
+        }
+
     }
 
 }
