@@ -55,15 +55,14 @@ public class IndividuoService {
         return new ResponseEntity<>(individuoDAO.save(individuo), HttpStatus.OK);
     }
 
-    @DeleteMapping(path ="individuo/{id}")
-    @PreAuthorize("hasRole('administrador')")
+    @DeleteMapping("/admin/individuo/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id){
         verifyIfIndividuoExist(id);
         individuoDAO.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping(path ="individuo")
+    @PutMapping("/aux/individuo")
     public ResponseEntity<?> update(@RequestBody Individuo individuo){
         verifyIfIndividuoExist(individuo.getId());
         individuoDAO.save(individuo);
